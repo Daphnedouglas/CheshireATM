@@ -14,10 +14,16 @@ class Bank_Account{
 	int Money_Deposit;
 
 public :
-	void create_account();
-	void Display_Account();
+	int retacno() const{
+		return account_number;
+	}
+	void createdata();
+	void displaycardholder();
 	
 };
+void write_account();
+void display_details(int);
+
 
 void Bank_Account :: create_account(){
 	system("cls");
@@ -44,6 +50,63 @@ void Bank_Account :: Display_Account(){
 	cout << "\t Account Number : " << account_number << endl;
 	cout << "\t PIN Number : " << PIN << endl;
 	cout << "\t Balance Amount : " << Money_Deposit << endl;
+}
+void createdata(){
+	Bank_Account ac;
+	ofstream outFile;
+	outFile.open("listbankholder.txt",ios::binary|ios::app);
+	ac.createaccount();
+	outFile.write(reinterpret_cast<char *> (&ac),sizeof(Bank_Account));// data type translator
+	outFile.close();
+}
+//For admin purposes
+void delete_acc(int n){
+	Bank_Account ac;
+	ifstream inFile;
+	ofstream outFile;
+	inFile.open("listbankholder.txt",ios::binary);
+	if(!inFile){
+		cout << "File is not Found! Press any key to continue..";
+		return;
+	}
+	outFile.open("TrashCan.txt",ios::binary);
+	inFile.seekg(0,ios::beg);
+	
+	while(inFile.read(reinterpret_cast<char *> (&ac),sizeof(Bank_Account))){
+		if (ac.retacnol()!=n){
+			outFile.write(reinterpret_cast<char *> (&ac),sizeof(Bank_Account));
+		}
+	}
+	inFile.close();
+	outFile.close();
+	remove("listbankholder.txt");
+	rename("TrashCan.txt","listbankholder.txt");
+	cout << "\t Record Deleted..." << endl;
+	
+}
+//For admin purposes only
+void displaycardholder(int n){
+	Bank_Account ac;
+	bool flag=false;
+	ifstream inFile;
+	inFile.open("listbankholder.txt",ios::binary);
+	if(!inFile){
+		cout << "File is not Found! Press any key to continue..";
+		return;
+	}
+	cout<<"\t Bank Account Details" << endl;
+		while(inFile.read(reinterpret_cast<char *> (&ac),sizeof(Bank_Account))){
+		if (ac.retacnol()==n){
+			ac.Display_Account();
+			flag = true;
+			}
+			}
+			inFile.close();
+			if(flag==false){
+				cout << "\t Account Number does not Exist"<<endl;
+				
+			}
+			
 }
 
 int main()

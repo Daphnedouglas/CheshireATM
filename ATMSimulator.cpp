@@ -48,6 +48,69 @@ void Bank_Account :: Display_Account(){
 
 int main()
 {
+	char ch;
+	int num; 
+	
+	cout << "\t\t -------------------------------------------" << endl;
+	cout << "\t\t | Welcome to the Cheshire Bank Management |" << endl;
+	cout << "\t\t -------------------------------------------" << endl
+	
+	cout << endl;
+	cout << "\t-----Main Menu-----";
+	cout << "\t 1. Create Account" << endl;
+	cout << "\t 2. Deposit Money" << endl;
+	cout << "\t 3. Withdraw Money" << endl;
+	cout << "\t 4. Balance Enquiry" << endl;
+	cout << "\t 5. All Account Holder List" << endl;
+	cout << "\t 6. Close an Account" << endl;
+	cout << "\t 7. Modify an Account" << endl;
+	cout << "\t 8. Exit" << endl;
+	cout << endl;
+	
+	cout << "\t Enter your choice : ";
+	cin >> ch;
+	
+	switch(ch){
+		case '1':
+			
+			break;
+		case '2':
+			system("cls");
+			cout << "\t Enter Account Number : ";
+			cin >> num;
+			// deposit function
+			break;
+		case '3':
+			system("cls");
+			cout << "\t Enter Account Number : ";
+			cin >> num;
+			// withdraw function
+			break;
+		case '4':
+			system("cls");
+			cout << "\t Enter Account Number : ";
+			cin >> num;
+			//  balance enquiry function
+			break;
+		case '5':
+			//display_all(); //display all function
+			break;		
+		case '6':
+			system("cls");
+			cout << "\t Enter Account Number : ";
+			cin >> num;
+			//  close enquiry function
+			break;
+		case '7':
+			system("cls");
+			cout << "\t Enter Account Number : ";
+			cin >> num;
+			//  modify account function
+			break;
+		case '8':
+			cout << "\t Thanks for using Cheshire Bank Management" << endl;
+			break ;
+	}
 	Bank_Account B ;
 	B.create_account();
 	B.Display_Account();

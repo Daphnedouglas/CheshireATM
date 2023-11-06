@@ -1,185 +1,256 @@
 #include <iostream>
-#include <iomanip>
 #include <fstream>
-#include <cstring>
-#include <cctype>
-
+#include <string>
+#include <Windows.h>
 
 using namespace std;
 
-class Bank_Account{
-	int account_number;
-	char name[50];
-	int PIN;
-	int Money_Deposit;
+struct Bank {
+    string f_name, l_name, ph_no, address, cnic;
+    int amount;
 
-public :
-	int retacno() const{
-		return account_number;
-	}
-	void createdata();
-	void displaycardholder();
-	
+    Bank() : f_name(""), l_name(""), ph_no(""), address(""), cnic(""), amount(0) {}
+
+    void welcome() {
+        cout << "\t\t\t\t\t\tMy Banking System!\t\t\t\t\t\t" << endl;
+    }
+
+    void info() {
+        cout << "Please enter your first name: "; cin >> f_name;
+        cout << "Please enter your last name: "; cin >> l_name;
+        cout << "Please enter your phone no.: "; cin >> ph_no;
+        //cout << "Please enter your address: "; cin >> address;
+        cout << "Please enter your CNIC: "; cin >> cnic;
+    }
+
+    void display() {
+        cout << "Your first name: " << f_name << endl;
+        cout << "Your last name: " << l_name << endl;
+        cout << "Your phone no.: " << ph_no << endl;
+        cout << "Your address: " << address << endl;
+        cout << "Your CNIC: " << cnic << endl;
+        cout << "Your current amount is: " << amount << endl;
+    }
 };
-void write_account();
-void display_details(int);
 
+int main() {
+    int key;
+    Bank b;
+    do {
+        b.welcome();
+        cout << "Please select one option from the menu:\n";
+        cout << "1. Account Open\n2. Deposit Amount\n3. Withdraw Amount\n4. Check Balance\n";
+        cout << "5. Update Record\n6. Delete Record\n7. Search Record\n8. Exit\n";
+        cin >> key;
+        if (key == 1) {
+            b.info();
+            ofstream file("BankData.txt", ios::app);
+            file << b.f_name << " " << b.l_name << " " << b.ph_no << " " << b.address << " " << b.cnic << " " << b.amount << endl;
+            file.close();
+            b.display();
+            Sleep(3000);
+            system("cls");
+        }
+        else if (key == 2) {
+            string nam;
+            int am = 0, count = 0;
+            cout << "Please enter your first name: "; cin >> nam;
+            ifstream file("BankData.txt");
+            ofstream tempFile("temp.txt", ios::out);
+            while (file >> b.f_name >> b.l_name >> b.ph_no >> b.address >> b.cnic >> b.amount) {
+                if (nam == b.f_name) {
+                    cout << "Name of account holder is: " << b.f_name << " " << b.l_name << endl;
+                    cout << "Current amount is: " << b.amount << endl;
+                    cout << "Please enter new amount: "; cin >> am;
+                    b.amount += am;
+                    cout << "Name of account holder is: " << b.f_name << " " << b.l_name << endl;
+                    cout << "Current amount is: " << b.amount << endl;
+                    tempFile << b.f_name << " " << b.l_name << " " << b.ph_no << " " << b.address << " " << b.cnic << " " << b.amount << endl;
+                    count += 1;
+                }
+                else {
+                    tempFile << b.f_name << " " << b.l_name << " " << b.ph_no << " " << b.address << " " << b.cnic << " " << b.amount << endl;
+                }
+            }
+            tempFile.close();
+            file.close();
+            if (count >= 1) {
+                remove("BankData.txt");
+                rename("temp.txt", "BankData.txt");
+            }
+            Sleep(3000);
+            system("cls");
+        }
+        else if (key == 3) {
+            string nam;
+            int am = 0, count = 0;
+            cout << "Please enter your first name: "; cin >> nam;
+            ifstream file("BankData.txt");
+            ofstream tempFile("temp.txt", ios::out);
+            while (file >> b.f_name >> b.l_name >> b.ph_no >> b.address >> b.cnic >> b.amount) {
+                if (nam == b.f_name) {
+                    cout << "Name of account holder is: " << b.f_name << " " << b.l_name << endl;
+                    cout << "Current amount is: " << b.amount << endl;
+                retry:
+                    cout << "Please enter amount to withdraw: ";
+                    cin >> am;
+                    if (am <= b.amount) {
+                        b.amount -= am;
+                    }
+                    else {
+                        cout << "Amount being withdrawn is more than the available balance.\n";
+                        goto retry;
+                    }
+                    cout << "Name of account holder is: " << b.f_name << " " << b.l_name << endl;
+                    cout << "Updated amount is: " << b.amount << endl;
+                    tempFile << b.f_name << " " << b.l_name << " " << b.ph_no << " " << b.address << " " << b.cnic << " " << b.amount << endl;
+                    count += 1;
+                }
+                else {
+                    tempFile << b.f_name << " " << b.l_name << " " << b.ph_no << " " << b.address << " " << b.cnic << " " << b.amount << endl;
+                }
+            }
+            tempFile.close();
+            file.close();
+            if (count >= 1) {
+                remove("BankData.txt");
+                rename("temp.txt", "BankData.txt");
+            }
+            Sleep(3000);
+            system("cls");
+        }
+        else if (key == 4) {
+            string nam;
+            cout << "Please enter your first name: "; cin >> nam;
+            ifstream file("BankData.txt");
+            bool found = false;
+            while (file >> b.f_name >> b.l_name >> b.ph_no >> b.address >> b.cnic >> b.amount) {
+                if (nam == b.f_name) {
+                    cout << "Name of account holder is: " << b.f_name << " " << b.l_name << endl;
+                    cout << "Current amount is: " << b.amount << endl;
+                    found = true;
+                    break;
+                }
+            }
+            file.close();
+            if (!found) {
+                cout << "Computer is either searching or wasn't able to find your record.\n";
+            }
+            Sleep(3000);
+            system("cls");
+        }
+        else if (key == 5) {
+            string nam;
+            int count = 0;
+            char ke, opt;
+            cout << "Please enter your first name: "; cin >> nam;
+            ifstream file("BankData.txt");
+            ofstream tempFile("temp.txt", ios::out);
+            while (file >> b.f_name >> b.l_name >> b.ph_no >> b.address >> b.cnic >> b.amount) {
+                if (nam == b.f_name) {
+                    b.display();
+                    cout << "=================================================================\n";
+                    tempFile << b.f_name << " " << b.l_name << " " << b.ph_no << " " << b.address << " " << b.cnic << " " << b.amount << endl;
+                choose_option:
+                    cout << "To update first name (Press f).\nTo update last name (Press l).\n";
+                    cout << "To update phone no. (Press p).\nTo update address (Press a).\nTo update CNIC (Press c).\n";
+                    cin >> ke;
+                    if (ke == 'f') {
+                        cout << "Please enter your new first name: "; cin >> b.f_name;
+                    }
+                    else if (ke == 'l') {
+                        cout << "Please enter your new last name: "; cin >> b.l_name;
+                    }
+                    else if (ke == 'p') {
+                        cout << "Please enter your new phone number: "; cin >> b.ph_no;
+                    }
+                    else if (ke == 'a') {
+                        cout << "Please enter your new address: "; cin >> b.address;
+                    }
+                    else if (ke == 'c') {
+                        cout << "Please enter your new CNIC: "; cin >> b.cnic;
+                    }
+                    else {
+                        cout << "Invalid option. Try again.\n";
+                        goto choose_option;
+                    }
+                    tempFile << b.f_name << " " << b.l_name << " " << b.ph_no << " " << b.address << " " << b.cnic << " " << b.amount << endl;
+                    cout << "Do you want to update another record? (y/n) ";
+                    cin >> opt;
+                    if (opt == 'n') {
+                        count += 1;
+                    }
+                }
+                else {
+                    tempFile << b.f_name << " " << b.l_name << " " << b.ph_no << " " << b.address << " " << b.cnic << " " << b.amount << endl;
+                }
+            }
+            tempFile.close();
+            file.close();
+            if (count >= 1) {
+                remove("BankData.txt");
+                rename("temp.txt", "BankData.txt");
+            }
+            Sleep(3000);
+            system("cls");
+        }
+        else if (key == 6) {
+            string nam;
+            int count = 0;
+            char ke;
+            cout << "Please enter your first name: "; cin >> nam;
+            ifstream file("BankData.txt");
+            ofstream tempFile("temp.txt", ios::out);
+            while (file >> b.f_name >> b.l_name >> b.ph_no >> b.address >> b.cnic >> b.amount) {
+                if (nam == b.f_name) {
+                    cout << "Name of account holder is: " << b.f_name << " " << b.l_name << endl;
+                    cout << "Current amount is: " << b.amount << endl;
+                    cout << "Do you really want to delete the record? (y/n) ";
+                    cin >> ke;
+                    if (ke == 'y') {
+                        count += 1;
+                    }
+                    else {
+                        tempFile << b.f_name << " " << b.l_name << " " << b.ph_no << " " << b.address << " " << b.cnic << " " << b.amount << endl;
+                    }
+                }
+                else {
+                    tempFile << b.f_name << " " << b.l_name << " " << b.ph_no << " " << b.address << " " << b.cnic << " " << b.amount << endl;
+                }
+            }
+            tempFile.close();
+            file.close();
+            if (count >= 1) {
+                remove("BankData.txt");
+                rename("temp.txt", "BankData.txt");
+            }
+            Sleep(3000);
+            system("cls");
+        }
+        else if (key == 7) {
+            string nam;
+            cout << "Please enter your first name: "; cin >> nam;
+            ifstream file("BankData.txt");
+            bool found = false;
+            while (file >> b.f_name >> b.l_name >> b.ph_no >> b.address >> b.cnic >> b.amount) {
+                if (nam == b.f_name) {
+                    b.display();
+                    found = true;
+                    break;
+                }
+            }
+            file.close();
+            if (!found) {
+                cout << "Computer is either searching or wasn't able to find your record.\n";
+            }
+            Sleep(3000);
+            system("cls");
+        }
+    } while (key != 8);
 
-void Bank_Account :: create_account(){
-	system("cls");
-	cout << "\t Enter Card Holder Name : ";
-	cin.ignore();
-	cin.getline(name,50);
-	cout << "\t Enter Account Number : ";
-	cin >> account_number;
-	cout << "\t Enter PIN Number : ";
-	cin >> PIN;
-	cout << "\t Enter Initial amount ( >= 500 for Saving and >= 1000 for current ) : ";
-	cin >> Money_Deposit;
-	// cari loading before ada account create
-	
+    system("cls");
+    b.welcome();
+    cout << "\t\t\t\t\t Thank You for visiting our bank.\n\t\t\t\t\t";
 
-	
-	
-	cout << "\t Account Created..........:) \n";
+    return 0;
 }
-
-void Bank_Account :: Display_Account(){
-	
-	cout << "\t Account Holder Name : " << name << endl;
-	cout << "\t Account Number : " << account_number << endl;
-	cout << "\t PIN Number : " << PIN << endl;
-	cout << "\t Balance Amount : " << Money_Deposit << endl;
-}
-void createdata(){
-	Bank_Account ac;
-	ofstream outFile;
-	outFile.open("listbankholder.txt",ios::binary|ios::app);
-	ac.createaccount();
-	outFile.write(reinterpret_cast<char *> (&ac),sizeof(Bank_Account));// data type translator
-	outFile.close();
-}
-//For admin purposes
-void delete_acc(int n){
-	Bank_Account ac;
-	ifstream inFile;
-	ofstream outFile;
-	inFile.open("listbankholder.txt",ios::binary);
-	if(!inFile){
-		cout << "File is not Found! Press any key to continue..";
-		return;
-	}
-	outFile.open("TrashCan.txt",ios::binary);
-	inFile.seekg(0,ios::beg);
-	
-	while(inFile.read(reinterpret_cast<char *> (&ac),sizeof(Bank_Account))){
-		if (ac.retacnol()!=n){
-			outFile.write(reinterpret_cast<char *> (&ac),sizeof(Bank_Account));
-		}
-	}
-	inFile.close();
-	outFile.close();
-	remove("listbankholder.txt");
-	rename("TrashCan.txt","listbankholder.txt");
-	cout << "\t Record Deleted..." << endl;
-	
-}
-//For admin purposes only
-void displaycardholder(int n){
-	Bank_Account ac;
-	bool flag=false;
-	ifstream inFile;
-	inFile.open("listbankholder.txt",ios::binary);
-	if(!inFile){
-		cout << "File is not Found! Press any key to continue..";
-		return;
-	}
-	cout<<"\t Bank Account Details" << endl;
-		while(inFile.read(reinterpret_cast<char *> (&ac),sizeof(Bank_Account))){
-		if (ac.retacnol()==n){
-			ac.Display_Account();
-			flag = true;
-			}
-			}
-			inFile.close();
-			if(flag==false){
-				cout << "\t Account Number does not Exist"<<endl;
-				
-			}
-			
-}
-
-int main()
-{
-	char ch;
-	int num; 
-	
-	cout << "\t\t -------------------------------------------" << endl;
-	cout << "\t\t | Welcome to the Cheshire Bank Management |" << endl;
-	cout << "\t\t -------------------------------------------" << endl
-	
-	cout << endl;
-	cout << "\t-----Main Menu-----";
-	cout << "\t 1. Create Account" << endl;
-	cout << "\t 2. Deposit Money" << endl;
-	cout << "\t 3. Withdraw Money" << endl;
-	cout << "\t 4. Balance Enquiry" << endl;
-	cout << "\t 5. All Account Holder List" << endl;
-	cout << "\t 6. Close an Account" << endl;
-	cout << "\t 7. Modify an Account" << endl;
-	cout << "\t 8. Exit" << endl;
-	cout << endl;
-	
-	cout << "\t Enter your choice : ";
-	cin >> ch;
-	
-	switch(ch){
-		case '1':
-			
-			break;
-		case '2':
-			system("cls");
-			cout << "\t Enter Account Number : ";
-			cin >> num;
-			// deposit function
-			break;
-		case '3':
-			system("cls");
-			cout << "\t Enter Account Number : ";
-			cin >> num;
-			// withdraw function
-			break;
-		case '4':
-			system("cls");
-			cout << "\t Enter Account Number : ";
-			cin >> num;
-			//  balance enquiry function
-			break;
-		case '5':
-			//display_all(); //display all function
-			break;		
-		case '6':
-			system("cls");
-			cout << "\t Enter Account Number : ";
-			cin >> num;
-			//  close enquiry function
-			break;
-		case '7':
-			system("cls");
-			cout << "\t Enter Account Number : ";
-			cin >> num;
-			//  modify account function
-			break;
-		case '8':
-			cout << "\t Thanks for using Cheshire Bank Management" << endl;
-			break ;
-	}
-	Bank_Account B ;
-	B.create_account();
-	B.Display_Account();
-	return 0;	
-}
-
-
-
-

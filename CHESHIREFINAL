@@ -10,7 +10,7 @@
 // ANSI escape code for yellow text
 #define boldyellow "\033[93m"
 #define blue "\033[96m"
-#define purple "\033[95m"
+#define purple "\033[93m"
 #define green "\033[92m"
 #define red "\033[91m"
 #define reset "\033[0m"

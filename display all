@@ -1,0 +1,31 @@
+#include <fstream>
+#include <iostream>
+
+using namespace std;
+
+int main() {
+  
+  int int_array[5];
+  string string_array[5];
+  float float_array[5];
+
+  ifstream file("BankData.txt");
+
+  if (file.is_open()) {
+    int i = 0;
+    while (!file.eof()) {
+      file >> string_array[i] >> int_array[i] >> float_array[i];
+      i++;
+    }
+
+    file.close();
+
+    for (int i = 0; i < 5; i++) {
+      cout << string_array[i] << " " << int_array[i] << " " << float_array[i] << endl;
+    }
+  } else {
+    cout << "Error: Could not open file." << endl;
+  }
+
+  return 0;
+}

@@ -5,9 +5,9 @@
 #include <time.h>
 #include <iomanip> // table form
 #include <ctime>  // for _strdate and _strtime
-#include <cstdlib> // for system
+#include <process.h> // for system
 
-// ANSI escape code for yellow text
+// ANSI escape code for colored text
 #define boldyellow "\033[93m"
 #define blue "\033[96m"
 #define purple "\033[93m"
@@ -15,39 +15,419 @@
 #define red "\033[91m"
 #define reset "\033[0m"
 
-using namespace std;
+
 //declaration of functions
 void welcomeScreen();
 void showLogo();
 void mainmenucustomer();
 void mainmenuadmin();
+int type();
+void waiting(unsigned int mseconds);
 
 
 //Structure application for Bank
 struct Bank {
-    string name, accnum;//cnic; //declaration of variables
+    std::string name, accnum;//cnic; //declaration of variables
     int amount;
 
     Bank() : name(""), accnum(""), amount(0) {}//pinnum("")
 
-
     void info() {
-        cout << purple << endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 NEW ACCOUNT \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << endl;
-        cout << "\t\t\t Enter Username: ";
-        cin >> name;
+        std::cout << purple << std::endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 NEW ACCOUNT \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << std::endl;
+        std::cout << "\t\t\t Enter Username: ";
+        std::cin >> name;
 
-        cout << "\t\t\t Enter Account Number:  ";
-        cin >> accnum;
+        std::cout << "\t\t\t Enter Account Number:  ";
+        std::cin >> accnum;
     }
 
     void display() {
-        cout << purple << endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 ACCOUNT CREATED \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << endl;
-        cout << "\n\n\t\t\t Your Username: " << name << endl;
+        std::cout << purple << std::endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 ACCOUNT CREATED \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << std::endl;
+        std::cout << "\n\n\t\t\t Your Username: " << name << std::endl;
 
-        cout << "\t\t\t Your Current Balance :RM " << amount << endl;
+        std::cout << "\t\t\t Your Current Balance :RM " << amount << std::endl;
     }
 };
 
+
+
+
+
+int main() {
+
+    //some variables to be used within the main functions
+    const int DATE_SIZE = 11; // "MM/DD/YYYY\0"
+    const int TIME_SIZE = 9;  // "HH:MM:SS\0"
+    char date[DATE_SIZE];
+    char time[TIME_SIZE];
+    int key,exit;
+
+    Bank b;
+    
+     welcomeScreen();
+
+    do { 
+        system("cls");
+        showLogo();
+        exit = type(); //check which type of user
+        if (exit == 8) {
+            break;
+        }
+        std::cin >> key;
+
+        if (key == 1) { 
+            //Create a new bank account
+            system("cls");
+            showLogo();
+            b.info();
+            std::ofstream file("BankData.txt", std::ios::app);
+            file << b.name << " " << b.accnum << " " << b.amount << std::endl;
+            file.close();
+            std::cout << boldyellow << "\n\n\t\t\t CREATING YOUR ACCOUNT... PLEASE WAIT!!" << reset << std::endl;
+            Sleep(2500);
+            system("cls");
+            showLogo();
+            b.display();
+            Sleep(6000);
+            system("cls");
+        }
+        else if (key == 2) {
+            //Cash depositing function
+            system("cls");
+            showLogo();
+            std::string nam;
+            int am = 0, count = 0;
+            std::cout << purple << std::endl << "\t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 SEARCHING FOR ACCOUNT \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << std::endl;
+            std::cout << "\n\n\t\t\t Enter Username: ";
+            std::cin >> nam;
+            std::ifstream file("BankData.txt");
+            std::ofstream tempFile("temp.txt", std::ios::out);
+            while (file >> b.name >> b.accnum >> b.amount) {
+                if (nam == b.name) {
+                    system("cls");
+                    showLogo();
+                    std::cout << purple << std::endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 DEPOSIT CASH \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << std::endl;
+                    std::cout << "\n\n\t\t\t Name of Account Holder : " << b.name << " " << std::endl;
+                    std::cout << purple << "\t\t\t ______________________________________________________" << reset << std::endl;
+                    std::cout << blue << "\n\n\t\t\t Current Balance :RM " << b.amount << reset << std::endl;
+                    std::cout << "\t\t\t Enter New amount:RM ";
+                    std::cin >> am;
+                    b.amount += am;
+
+                    //receipt(b.accnum);
+                    system("cls");
+                    showLogo();
+                    std::cout << boldyellow << "\n\n\n\t\t\t\t\t PRINTING RECEIPT . . .\n" << reset;
+                    waiting(3000);
+                    system("cls");
+                    _strdate_s(date, _countof(date));
+                    _strtime_s(time, _countof(time));
+
+                    std::cout << boldyellow << std::endl << "\n\n\t\t\t|\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 CHESHIRE BANK \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2|" << reset;
+                    std::cout << "\n\t\t\t|\t\t\t\t\t      |"
+                        << "\n\t\t\t|\t     ATM TRANSACTION RECORD\t      |"
+                        << "\n\t\t\t|\t\t\t\t\t      |"
+                        << "\n\t\t\t|DATE:\t\t\t    " << date << "\t      |"
+                        << "\n\t\t\t|TIME:\t\t\t    " << time << "\t      |"
+
+
+                        << "\n\t\t\t|USERNAME:\t\t    " << b.name << "\t      |"
+                        << "\n\t\t\t|ACCOUNT BALANCE:           " << "RM " << b.amount << "            |" << std::endl;
+
+                    std::cout << boldyellow << "\t\t\t|\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2|" << reset;
+
+                    std::cout << green << "\n\n\n\t\t\t CASH DEPOSITED TO YOUR ACCOUNT SUCCESSFULLY!!" << reset << std::endl;
+
+
+                    tempFile << b.name << " " << b.accnum << " " << b.amount << std::endl;
+                    count += 1;
+                    Sleep(10000);
+                }
+                else {
+                    tempFile << b.name << " " << b.accnum << " " << b.amount << std::endl;
+                }
+            }
+            tempFile.close();
+            file.close();
+            if (count >= 1) {
+                remove("BankData.txt");
+                rename("temp.txt", "BankData.txt");
+            }
+            
+        }
+        else if (key == 3) {
+            //Witdraw money
+            system("cls");
+            showLogo();
+            std::string nam;
+            int am = 0, count = 0;
+            std::cout << purple << std::endl << "\t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 SEARCHING FOR ACCOUNT \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << std::endl;
+            std::cout << "\n\n\t\t\t Enter Username: ";
+            std::cin >> nam;
+            std::ifstream file("BankData.txt");
+            std::ofstream tempFile("temp.txt", std::ios::out);
+            while (file >> b.name >> b.accnum >> b.amount) { // opening file
+                if (nam == b.name) {
+                    system("cls");
+                    showLogo();
+                    std::cout << purple << std::endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 WITHDRAW CASH \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << std::endl;
+                    std::cout << "\n\n\t\t\t Name of Account Holder : " << b.name << " " << std::endl;
+                    std::cout << purple << "\t\t\t ______________________________________________________" << reset << std::endl;
+                    std::cout << blue << "\n\n\t\t\t Current Balance :RM " << b.amount << reset << std::endl;
+                retry:
+                    std::cout << "\t\t\t Enter Amount to withdraw: ";
+                    std::cin >> am;
+                    if (am <= b.amount) {
+                        b.amount -= am;
+                    }
+                    else {
+                        std::cout << red << "\t\t\t NOT ENOUGH BALANCE!!\n" << reset;
+                        goto retry;
+                    }
+                    system("cls");
+                    showLogo();
+
+                    std::cout << boldyellow << "\n\n\n\t\t\t\t\t PRINTING RECEIPT . . .\n" << reset;
+                    waiting(3000);
+                    system("cls");
+                    _strdate_s(date, _countof(date));
+                    _strtime_s(time, _countof(time));
+
+                    std::cout << boldyellow << std::endl << "\n\n\t\t\t|\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 CHESHIRE BANK \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2|" << reset;
+                    std::cout << "\n\t\t\t|\t\t\t\t\t      |"
+                        << "\n\t\t\t|\t     ATM TRANSACTION RECORD\t      |"
+                        << "\n\t\t\t|\t\t\t\t\t      |"
+                        << "\n\t\t\t|DATE:\t\t\t    " << date << "\t      |"
+                        << "\n\t\t\t|TIME:\t\t\t    " << time << "\t      |"
+
+
+                        << "\n\t\t\t|USERNAME:\t\t    " << b.name << "\t      |"
+                        << "\n\t\t\t|ACCOUNT BALANCE:           " << "RM " << b.amount << "            |" << std::endl;
+
+                    std::cout << boldyellow << std::endl << "\t\t\t|\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2|" << reset;
+                    std::cout << green << "\n\n\t\t\t CASH WITHDRAWED FROM YOUR ACCOUNT SUCCESSFULLY!!" << reset << std::endl;
+
+                    tempFile << b.name << " " << b.accnum << " " << b.amount << std::endl;
+                    count += 1;
+                    Sleep(5000);
+                }
+                else {
+                    tempFile << b.name << " " << b.accnum << " " << b.amount << std::endl;
+                }
+            }
+            tempFile.close();
+            file.close();
+            if (count >= 1) {
+                remove("BankData.txt");
+                rename("temp.txt", "BankData.txt");
+            }
+        }
+        else if (key == 4) {
+            //Check bank account balance
+            system("cls");
+            showLogo();
+            std::string nam;
+            std::cout << purple << std::endl << "\t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 SEARCHING FOR ACCOUNT \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << std::endl;
+            std::cout << "\n\n\t\t\t Enter Username: ";
+            std::cin >> nam;
+            std::ifstream file("BankData.txt");
+            bool found = false;
+            while (file >> b.name >> b.accnum >> b.amount) {
+                system("cls");
+                showLogo();
+                if (nam == b.name) {
+                    std::cout << purple << std::endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 CHECK BALANCE \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << std::endl;
+                    std::cout << purple << "\n\n\t\t\t =====================================================" << reset << std::endl;
+                    std::cout << "\n\n\t\t\t Name of Account Holder : " << b.name << " " << std::endl;
+                    std::cout << " \n\n\t\t\t Current Balance:RM " << b.amount << std::endl;
+                    std::cout << purple << "\n\n\t\t\t =====================================================" << reset << std::endl;
+                    Sleep(4000);
+                    found = true;
+                    break;
+                }
+            }
+            file.close();
+            if (!found) {
+                std::cout << red << "\n\n\t\t\t UNABLE TO FIND YOUR RECORD\n" << reset;
+            }
+            Sleep(3000);
+            system("cls");
+        }
+        else if (key == 5) {
+            //Update the bank record
+            system("cls");
+            showLogo();
+            std::string nam;
+            int count = 0;
+            char ke, opt;
+           std::cout << purple << std::endl << "\t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 SEARCHING FOR ACCOUNT \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << std::endl;
+            std::cout << "\n\n\t\t\t Enter Username: ";
+           std::cin >> nam;
+
+            std::ifstream file("BankData.txt");
+            std::ofstream tempFile("temp.txt", std::ios::out);
+            while (file >> b.name >> b.accnum >> b.amount) {
+                if (nam == b.name) {
+                    
+                    system("cls");
+                    showLogo();
+                    b.display();
+
+                    tempFile << b.name << " " << b.accnum << " " << b.amount << std::endl;
+                choose_option:
+                    std::cout << purple << std::endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 UPDATE RECORD \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset;
+                    std::cout << "\n\n\t\t\t [ f ] Change Username" << std::endl;
+                    std::cout << "\t\t\t [ c ] Change Account Number " << std::endl;
+
+                    std::cout << purple << "\t\t\t ______________________________________________________" << reset << std::endl;
+                    std::cout << "\n\n\t\t\t Enter choice: ";
+                    std::cin >> ke;
+                    if (ke == 'f') {
+                        system("cls");
+                        showLogo();
+                        std::cout << purple << std::endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 NEW USERNAME \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset;
+                        std::cout << "\n\n\t\t\t Name of Account Holder : " << b.name << " " << std::endl;
+                        std::cout << "\n\n\t\t\t Enter New Username: ";
+                        std::cin >> b.name;
+                    }
+
+                    else if (ke == 'c') {
+                        system("cls");
+                        showLogo();
+                        std::cout << purple << std::endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 NEW ACCOUNT NUMBER \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset;
+                        std::cout << "\n\n\t\t\t  Enter New Account Number: ";
+                        std::cin >> b.accnum;
+                        system("cls");
+                        showLogo();
+                        std::cout << green << "\n\n\t\t\t ACCOUNT NUMBER HAS BEEN UPDATED SUCCESSFULLY!!" << reset << std::endl;
+                        std::cout << purple << "\n\n\t\t\t =====================================================" << reset << std::endl;
+                        std::cout << "\n\n\t\t\t Name of Account Holder : " << b.name << " " << std::endl;
+                        std::cout << " \n\n\t\t\t Account Number : " << b.accnum << std::endl;
+                        std::cout << purple << "\n\n\t\t\t =====================================================" << reset << std::endl;
+                        Sleep(1000);
+                    }
+                    else {
+                        std::cout << red << "INVALID OPTION. TRY AGAIN!\n" << red;
+                        goto choose_option;
+                    }
+                    tempFile << b.name << " " << b.accnum << " " << " " << b.amount << std::endl;
+                    std::cout << blue << "\n\n\t\t\tDo You want to update another record? (y/n): " << reset;
+                    std::cin >> opt;
+                    if (opt == 'n') {
+                        count += 1;
+                    }
+                }
+                else {
+                    tempFile << b.name << " " << b.accnum << " " << b.amount << std::endl;
+                }
+            }
+            tempFile.close();
+            file.close();
+            if (count >= 1) {
+                remove("BankData.txt");
+                rename("temp.txt", "BankData.txt");
+            }
+        }
+        else if (key == 6) {
+            //Delete a user record
+            system("cls");
+            showLogo();
+            std::string nam;
+            int count = 0;
+            char ke;
+            std::cout << purple << std::endl << "\t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 SEARCHING FOR ACCOUNT \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << std::endl;
+            std::cout << "\n\n\t\t\t Enter Username: ";
+            std::cin >> nam;
+            std::ifstream file("BankData.txt");
+            std::ofstream tempFile("temp.txt", std::ios::out);
+            while (file >> b.name >> b.accnum >> b.amount) {
+                if (nam == b.name) {
+                    system("cls");
+                    showLogo();
+                    std::cout << purple << "\n\n\t\t\t =====================================================" << reset << std::endl;
+                    std::cout << "\n\n\t\t\t Name of Account Holder : " << b.name << " " << std::endl;
+                    std::cout << " \t\t\t Account Number : " << b.accnum << std::endl;
+                    std::cout << " \t\t\t Balance In The Account :RM " << b.amount << std::endl;
+                    std::cout << purple << "\n\n\t\t\t =====================================================" << reset << std::endl;
+                    std::cout << red << "\n\n\t\t\t Do you really want to delete the record ? (y/n): " << reset;
+                    std::cin >> ke;
+                    if (ke == 'y') {
+                        std::cout << green << "\n\n\t\t\t ACCOUNT HAS BEEN DELETED SUCCESSFULLY!!" << reset << std::endl;
+                        count += 1;
+                    }
+                    else {
+                        tempFile << b.name << " " << b.accnum << " " << b.amount << std::endl;
+                    }
+                }
+                else {
+                    std::cout << red << "\n\n\t\t\t UNABLE TO FIND YOUR RECORD\n" << reset;
+                    tempFile << b.name << " " << b.accnum << " " << b.amount << std::endl;
+                }
+            }
+            tempFile.close();
+            file.close();
+            if (count >= 1) {
+                remove("BankData.txt");
+                rename("temp.txt", "BankData.txt");
+            }
+            Sleep(1000);
+            system("cls");
+            
+        }
+        else if (key == 7) {
+            //View all entries in the bank
+            system("cls");
+
+            int int_array[5];
+            std::string string_array[5];
+            float float_array[5];
+            char e;
+
+            std::ifstream file("BankData.txt");
+
+            if (file.is_open()) {
+                // Display header
+                std::cout << purple << "\n\n\t\t\t =====================================================" << reset << std::endl;
+                std::cout << std::setw(37) << "USERNAME" << std::setw(18) << "ACCOUNT NO." << std::setw(18) << "ACCOUNT BALANCE" << std::endl;
+                std::cout << purple << "\t\t\t =====================================================" << reset << std::endl;
+
+                int i = 0;
+                while (i < 5 && file >> string_array[i] >> int_array[i] >> float_array[i]) {
+                    // Display data in tabular form
+                    std::cout << std::setw(37) << string_array[i] << std::setw(18) << int_array[i] << std::setw(18) << float_array[i] << std::endl;
+
+                    i++;
+                }
+
+                file.close();
+                std::cout << purple << "\n\n\t\t\t =====================================================" << reset << std::endl;
+                while (1) {
+                 std::cout << red << "\n\n\t\t\t Press [y] to back to Main Menu: " << reset;
+                std::cin >> e;
+                if (e != 'y') {
+                    std::cout << red << "\n\n\t\t\t WRONG KEY TRY AGAIN" << reset << std::endl;
+                    Sleep(1000);
+                }
+                else {
+                    system("cls");
+                    break;
+                }
+                }
+                
+            }
+            else {
+                std::cout << red << "\n\n\t\t\t ERROR OPENING THE FILE!" << reset << std::endl;
+            }
+        }
+
+    } while (key != 8);
+system("cls");
+    showLogo();
+    std::cout << blue << "\n\n\t\t\t Thank You for visiting our bank.\n\t\t\t\t\t" << reset;
+    Sleep(1000);
+    system("cls");
+    return 0;
+}
 
 void waiting(unsigned int mseconds)
 {
@@ -57,7 +437,7 @@ void waiting(unsigned int mseconds)
 
 void welcomeScreen()
 {
-    cout << "\n\t\t\t ______________________________________________________"
+    std::cout << "\n\t\t\t ______________________________________________________"
         << "\n\t\t\t|    * * *      * * * *    * * * * *      * * * * *     |"
         << "\n\t\t\t|  * * * * *  * * * * * *  * * * * * *    * * * * * *   |"
         << "\n\t\t\t|  * *        * *     * *  * *      * *   * *      * *  |"
@@ -67,20 +447,16 @@ void welcomeScreen()
         << "\n\t\t\t|  * * * * *  * *     * *  * *       * *  * * * * * *   |"
         << "\n\t\t\t|    * * *    * *     * *  * *        * *  * * * * *    |"
         << "\n\t\t\t|------------- CHESHIRE ATM SIMULATION -----------------|";
-    cout << boldyellow << "\n\n\t\t\tPlease INSERT your Card [Press ENTER to insert card] " << reset;
-    cin.get();
+    std::cout << boldyellow << "\n\n\t\t\tPlease INSERT your Card [Press ENTER to insert card] " << reset;
+    std::cin.get();
     waiting(1500);
     system("cls");
-
-
-
-
 }
 
 void showLogo()
 {
-    cout << "\n\t\t\t + ----------------- WELCOME TO -------------------- + ";
-    cout << "\n\t\t\t ____________________________________________________"
+    std::cout << "\n\t\t\t + ----------------- WELCOME TO -------------------- + ";
+    std::cout << "\n\t\t\t ____________________________________________________"
         << "\n\t\t\t|    * * *    * *     * *  * * * * *       * * * * *  |"
         << "\n\t\t\t|  * * * * *  * *     * *  * * * * * *    * * * * * * |"
         << "\n\t\t\t|  * *        * *     * *  * *      * *   * *         |"
@@ -97,38 +473,42 @@ void mainmenucustomer()
 {
     system("cls");
     showLogo();
-    cout << purple << endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 MAIN MENU TRANSACTION \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset;
-    cout << "\n\n\t\t\t [ 1 ] Create New Account" << endl;
-    cout << "\t\t\t [ 2 ] Deposit Cash" << endl;
-    cout << "\t\t\t [ 3 ] Withdraw Amount" << endl;
-    cout << "\t\t\t [ 4 ] Check Balance" << endl;
-    cout << "\t\t\t [ 5 ] Update Record" << endl;
+    std::cout << purple << std::endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 MAIN MENU TRANSACTION \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset;
+    std::cout << "\n\n\t\t\t [ 1 ] Create New Account" << std::endl;
+    std::cout << "\t\t\t [ 2 ] Deposit Cash" << std::endl;
+    std::cout << "\t\t\t [ 3 ] Withdraw Amount" << std::endl;
+    std::cout << "\t\t\t [ 4 ] Check Balance" << std::endl;
+    std::cout << "\t\t\t [ 5 ] Update Record" << std::endl;
 
-    cout << "\t\t\t [ 8 ] Exit" << endl;
-    cout << purple << "\t\t\t ______________________________________________________" << reset << endl;
-    cout << "\n\n\t\t\t Enter choice: ";
+    std::cout << "\t\t\t [ 8 ] Exit" << std::endl;
+    std::cout << purple << "\t\t\t ______________________________________________________" << reset << std::endl;
+    std::cout << "\n\n\t\t\t Enter choice: ";
 }
-void type() {
+int type() {
     int type;
-    cout << purple << endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 CHOOSE USER \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset;
-    cout << "\n\n\t\t\t [ 9 ] Customer" << endl;
-    cout << "\t\t\t [ 10 ] Admin" << endl;
-    cout << "\t\t\t [ 8 ] Exit" << endl;
-    cout << purple << "\t\t\t ______________________________________________________" << reset << endl;
-    cout << "\n\n\t\t\t Enter choice: ";
-
-    cin >> type;
-    if (type == 9) {
+    std::cout << purple << std::endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 CHOOSE USER \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset;
+    std::cout << "\n\n\t\t\t [ 9 ] Customer" << std::endl;
+    std::cout << "\t\t\t [ 10 ] Admin" << std::endl;
+    std::cout << "\t\t\t [ 8 ] Exit" << std::endl;
+    std::cout << purple << "\t\t\t ______________________________________________________" << reset << std::endl;
+    std::cout << "\n\n\t\t\t Enter choice: ";
+    std::cin >> type;
+    switch (type)
+    {
+    case 9:
         mainmenucustomer();
-    }
-    else if (type == 10) {
+        break;
+    case 8:
+        return 8;
+        break;
+    case 10:
         mainmenuadmin();
-
+        break;
+    default:
+        std::cout << red << "\n\n\t\t\t INVALID " << reset << std::endl;
+        break;
     }
-    else {
-        cout << red << "\n\n\t\t\t INVALID " << reset << endl;
-    }
-
+    return 0;
 }
 
 
@@ -136,386 +516,11 @@ void mainmenuadmin()
 {
     system("cls");
     showLogo();
-    cout << purple << endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 MAIN MENU TRANSACTION \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset;
+    std::cout << purple << std::endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 MAIN MENU TRANSACTION \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset;
 
-    cout << "\n\n\t\t\t [ 6 ] Delete Record" << endl;
-    cout << "\t\t\t [ 7 ] View All Record" << endl;
-    cout << "\t\t\t [ 8 ] Exit" << endl;
-    cout << purple << "\t\t\t ______________________________________________________" << reset << endl;
-    cout << "\n\n\t\t\t Enter choice: ";
-}
-
-
-int main() {
-  
-    const int DATE_SIZE = 11; // "MM/DD/YYYY\0"
-    const int TIME_SIZE = 9;  // "HH:MM:SS\0"
-
-    char date[DATE_SIZE];
-    char time[TIME_SIZE];
-
-    int key;
-    Bank b;
-    welcomeScreen();
-
-    showLogo();
-    type(); //check which type of user
-   
-    do {
-        
-
-
-        cin >> key;
-        if (key == 1) {
-            system("cls");
-            showLogo();
-            b.info();
-            ofstream file("BankData.txt", ios::app);
-            file << b.name << " " << b.accnum << " " << b.amount << endl;
-
-            file.close();
-            cout << boldyellow << "\n\n\t\t\t CREATING YOUR ACCOUNT... PLEASE WAIT!!" << reset << endl;
-            Sleep(2500);
-            system("cls");
-            showLogo();
-            b.display();
-            Sleep(6000);
-            system("cls");
-        }
-        else if (key == 2) {
-            system("cls");
-            showLogo();
-            string nam;
-            int am = 0, count = 0;
-            cout << purple << endl << "\t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 SEARCHING FOR ACCOUNT \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << endl;
-            cout << "\n\n\t\t\t Enter Username: ";
-            cin >> nam;
-            ifstream file("BankData.txt");
-            ofstream tempFile("temp.txt", ios::out);
-            while (file >> b.name >> b.accnum >> b.amount) {
-                if (nam == b.name) {
-                    system("cls");
-                    showLogo();
-                    cout << purple << endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 DEPOSIT CASH \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << endl;
-                    cout << "\n\n\t\t\t Name of Account Holder : " << b.name << " " << endl;
-                    cout << purple << "\t\t\t ______________________________________________________" << reset << endl;
-                    cout << blue << "\n\n\t\t\t Current Balance :RM " << b.amount << reset << endl;
-                    cout << "\t\t\t Enter New amount:RM ";
-                    cin >> am;
-                    b.amount += am;
-
-                    //receipt(b.accnum);
-                    system("cls");
-                    showLogo();
-                   
-                    
-                
-                    cout <<boldyellow<< "\n\n\n\t\t\t\t\t PRINTING RECEIPT . . .\n"<<reset;
-                    waiting(3000);
-                    system("cls");
-                    _strdate_s(date, _countof(date));
-                    _strtime_s(time, _countof(time));
-                    
-                    cout <<boldyellow<< endl << "\n\n\t\t\t|\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 CHESHIRE BANK \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2|"<<reset;
-                    cout << "\n\t\t\t|\t\t\t\t\t      |"
-                        << "\n\t\t\t|\t     ATM TRANSACTION RECORD\t      |"
-                        << "\n\t\t\t|\t\t\t\t\t      |"
-                        << "\n\t\t\t|DATE:\t\t\t    " << date << "\t      |"
-                        << "\n\t\t\t|TIME:\t\t\t    " << time << "\t      |"
-
-
-                        << "\n\t\t\t|USERNAME:\t\t    " << b.name << "\t      |"
-                        << "\n\t\t\t|ACCOUNT BALANCE:           " << "RM " << b.amount << "            |" <<endl;
-                
-                    cout << boldyellow << endl << "\t\t\t|\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2|" << reset;
-
-                    cout << green << "\n\n\n\t\t\t CASH DEPOSITED TO YOUR ACCOUNT SUCCESSFULLY!!" << reset << endl;
-                  
-                
-                    tempFile << b.name << " " << b.accnum << " " << b.amount << endl;
-                    count += 1;
-                    Sleep(10000);
-                }
-                else {
-                    tempFile << b.name << " " << b.accnum << " " << b.amount << endl;
-                }
-            }
-            tempFile.close();
-            file.close();
-            if (count >= 1) {
-                remove("BankData.txt");
-                rename("temp.txt", "BankData.txt");
-            }
-
-            system("cls");
-            showLogo();
-            cout << blue << "\n\n\t\t\t Thank You for visiting our bank.\n\t\t\t\t\t" << reset;
-        }
-        else if (key == 3) {
-            system("cls");
-            showLogo();
-            string nam;
-            int am = 0, count = 0;
-            cout << purple << endl << "\t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 SEARCHING FOR ACCOUNT \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << endl;
-            cout << "\n\n\t\t\t Enter Username: ";
-            cin >> nam;
-            ifstream file("BankData.txt");
-            ofstream tempFile("temp.txt", ios::out);
-            while (file >> b.name >> b.accnum >> b.amount) { // opening file
-                if (nam == b.name) {
-                    system("cls");
-                    showLogo();
-                    cout << purple << endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 WITHDRAW CASH \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << endl;
-                    cout << "\n\n\t\t\t Name of Account Holder : " << b.name << " " << endl;
-                    cout << purple << "\t\t\t ______________________________________________________" << reset << endl;
-                    cout << blue << "\n\n\t\t\t Current Balance :RM " << b.amount << reset << endl;
-                retry:
-                    cout << "\t\t\t Enter Amount to withdraw: ";
-                    cin >> am;
-                    if (am <= b.amount) {
-                        b.amount -= am;
-                    }
-                    else {
-                        cout << red << "\t\t\t NOT ENOUGH BALANCE!!\n" << reset;
-                        goto retry;
-                    }
-                    system("cls");
-                    showLogo();
-
-                    cout << boldyellow << "\n\n\n\t\t\t\t\t PRINTING RECEIPT . . .\n" << reset;
-                    waiting(3000);
-                    system("cls");
-                    _strdate_s(date, _countof(date));
-                    _strtime_s(time, _countof(time));
-
-                    cout << boldyellow << endl << "\n\n\t\t\t|\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 CHESHIRE BANK \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2|" << reset;
-                    cout << "\n\t\t\t|\t\t\t\t\t      |"
-                        << "\n\t\t\t|\t     ATM TRANSACTION RECORD\t      |"
-                        << "\n\t\t\t|\t\t\t\t\t      |"
-                        << "\n\t\t\t|DATE:\t\t\t    " << date << "\t      |"
-                        << "\n\t\t\t|TIME:\t\t\t    " << time << "\t      |"
-
-
-                        << "\n\t\t\t|USERNAME:\t\t    " << b.name << "\t      |"
-                        << "\n\t\t\t|ACCOUNT BALANCE:           " << "RM " << b.amount << "            |" << endl;
-
-                    cout << boldyellow << endl << "\t\t\t|\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2|" << reset;
-                    cout << green << "\n\n\t\t\t CASH WITHDRAWED FROM YOUR ACCOUNT SUCCESSFULLY!!" << reset << endl;
-                   
-                    tempFile << b.name << " " << b.accnum << " " << b.amount << endl;
-                    count += 1;
-                    Sleep(5000);
-                }
-                else {
-                    tempFile << b.name << " " << b.accnum << " " << b.amount << endl;
-                }
-            }
-            tempFile.close();
-            file.close();
-            if (count >= 1) {
-                remove("BankData.txt");
-                rename("temp.txt", "BankData.txt");
-            }
-            system("cls");
-            showLogo();
-            cout << blue << "\n\n\t\t\t Thank You for visiting our bank.\n\t\t\t\t\t" << reset;
-        }
-        else if (key == 4) {
-            system("cls");
-            showLogo();
-            string nam;
-            cout << purple << endl << "\t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 SEARCHING FOR ACCOUNT \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << endl;
-            cout << "\n\n\t\t\t Enter Username: ";
-            cin >> nam;
-            ifstream file("BankData.txt");
-            bool found = false;
-            while (file >> b.name >> b.accnum >> b.amount) {
-                system("cls");
-                showLogo();
-                if (nam == b.name) {
-                    cout << purple << endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 CHECK BALANCE \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << endl;
-                    cout << purple << "\n\n\t\t\t =====================================================" << reset << endl;
-                    cout << "\n\n\t\t\t Name of Account Holder : " << b.name << " " << endl;
-                    cout << " \n\n\t\t\t Current Balance:RM " << b.amount << endl;
-                    cout << purple << "\n\n\t\t\t =====================================================" << reset << endl;
-                    Sleep(4000);
-                    found = true;
-                    break;
-                }
-            }
-            file.close();
-            if (!found) {
-                cout << red << "\n\n\t\t\t UNABLE TO FIND YOUR RECORD\n" << reset;
-            }
-            Sleep(3000);
-            system("cls");
-        }
-        else if (key == 5) {
-            system("cls");
-            showLogo();
-            string nam;
-            int count = 0;
-            char ke, opt;
-            cout << purple << endl << "\t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 SEARCHING FOR ACCOUNT \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << endl;
-            cout << "\n\n\t\t\t Enter Username: ";
-            cin >> nam;
-
-            ifstream file("BankData.txt");
-            ofstream tempFile("temp.txt", ios::out);
-            while (file >> b.name >> b.accnum >> b.amount) {
-                if (nam == b.name) {
-                    system("cls");
-                    showLogo();
-                    b.display();
-
-                    tempFile << b.name << " " << b.accnum << " " << b.amount << endl;
-                choose_option:
-                    cout << purple << endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 UPDATE RECORD \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset;
-                    cout << "\n\n\t\t\t [ f ] Change Username" << endl;
-                    cout << "\t\t\t [ c ] Change Account Number " << endl;
-
-                    cout << purple << "\t\t\t ______________________________________________________" << reset << endl;
-                    cout << "\n\n\t\t\t Enter choice: ";
-                    cin >> ke;
-                    if (ke == 'f') {
-                        system("cls");
-                        showLogo();
-                        cout << purple << endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 NEW USERNAME \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset;
-                        cout << "\n\n\t\t\t Name of Account Holder : " << b.name << " " << endl;
-                        cout << "\n\n\t\t\t Enter New Username: ";
-                        cin >> b.name;
-                    }
-
-                    else if (ke == 'c') {
-                        system("cls");
-                        showLogo();
-                        cout << purple << endl << " \t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 NEW ACCOUNT NUMBER \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset;
-                        cout << "\n\n\t\t\t  Enter New Account Number: ";
-                        cin >> b.accnum;
-                        system("cls");
-                        showLogo();
-                        cout << green << "\n\n\t\t\t ACCOUNT NUMBER HAS BEEN UPDATED SUCCESSFULLY!!" << reset << endl;
-                        cout << purple << "\n\n\t\t\t =====================================================" << reset << endl;
-                        cout << "\n\n\t\t\t Name of Account Holder : " << b.name << " " << endl;
-                        cout << " \n\n\t\t\t Account Number : " << b.accnum << endl;
-                        cout << purple << "\n\n\t\t\t =====================================================" << reset << endl;
-
-                    }
-                    else {
-                        cout << red << "INVALID OPTION. TRY AGAIN!\n" << red;
-                        goto choose_option;
-                    }
-                    tempFile << b.name << " " << b.accnum << " " << " " << b.amount << endl;
-                    cout <<blue<< "\n\n\t\t\tDo You want to update another record? (y/n): "<<reset;
-                    cin >> opt;
-                    if (opt == 'n') {
-                        count += 1;
-                    }
-                }
-                else {
-                    tempFile << b.name << " " << b.accnum << " " << b.amount << endl;
-                }
-            }
-            tempFile.close();
-            file.close();
-            if (count >= 1) {
-                remove("BankData.txt");
-                rename("temp.txt", "BankData.txt");
-            }
-            system("cls");
-            showLogo();
-            cout << blue << "\n\n\t\t\t Thank You for visiting our bank.\n\t\t\t\t\t" << reset;
-        }
-        else if (key == 6) {
-            system("cls");
-            showLogo();
-            string nam;
-            int count = 0;
-            char ke;
-            cout << purple << endl << "\t\t\t \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2 SEARCHING FOR ACCOUNT \xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2\xB2" << reset << endl;
-            cout << "\n\n\t\t\t Enter Username: ";
-            cin >> nam;
-            ifstream file("BankData.txt");
-            ofstream tempFile("temp.txt", ios::out);
-            while (file >> b.name >> b.accnum >> b.amount) {
-                if (nam == b.name) {
-                    system("cls");
-                    showLogo();
-                    cout << purple << "\n\n\t\t\t =====================================================" << reset << endl;
-                    cout << "\n\n\t\t\t Name of Account Holder : " << b.name << " " << endl;
-                    cout << " \t\t\t Account Number : " << b.accnum << endl;
-                    cout << " \t\t\t Balance In The Account :RM " << b.amount << endl;
-                    cout << purple << "\n\n\t\t\t =====================================================" << reset << endl;
-                    cout << red << "\n\n\t\t\t Do you really want to delete the record ? (y/n): " << reset;
-                    cin >> ke;
-                    if (ke == 'y') {
-                        cout << green << "\n\n\t\t\t ACCOUNT HAS BEEN DELETED SUCCESSFULLY!!" << reset << endl;
-                        count += 1;
-                    }
-                    else {
-                        tempFile << b.name << " " << b.accnum << " " << b.amount << endl;
-                    }
-                }
-                else {
-                    cout << red << "\n\n\t\t\t UNABLE TO FIND YOUR RECORD\n" << reset;
-                    tempFile << b.name << " " << b.accnum << " " << b.amount << endl;
-                }
-            }
-            tempFile.close();
-            file.close();
-            if (count >= 1) {
-                remove("BankData.txt");
-                rename("temp.txt", "BankData.txt");
-            }
-            system("cls");
-            showLogo();
-            cout << blue << "\n\n\t\t\t Thank You for visiting our bank.\n\t\t\t\t\t" << reset;
-        }
-        else if (key == 7) {
-            system("cls");
-
-            int int_array[5];
-            string string_array[5];
-            float float_array[5];
-            char e;
-
-            ifstream file("BankData.txt");
-
-            if (file.is_open()) {
-                // Display header
-                cout << purple << "\n\n\t\t\t =====================================================" << reset << endl;
-                cout << std::setw(37) << "USERNAME" << std::setw(18) << "ACCOUNT NO." << std::setw(18) << "ACCOUNT BALANCE" << endl;
-                cout << purple << "\t\t\t =====================================================" << reset << endl;
-
-                int i = 0;
-                while (i < 5 && file >> string_array[i] >> int_array[i] >> float_array[i]) {
-                    // Display data in tabular form
-                    cout << std::setw(37) << string_array[i] << std::setw(18) << int_array[i] << std::setw(18) << float_array[i] << endl;
-
-                    i++;
-                }
-
-                file.close();
-                cout << purple << "\n\n\t\t\t =====================================================" << reset << endl;
-                cout << red << "\n\n\t\t\t Press [y] to back to Main Menu: " << reset;
-                cin >> e;
-                if (e == 'y') {
-                    mainmenuadmin();
-                }
-            }
-            else {
-                cout << red << "ERROR OPENING THE FILE!" << reset << endl;
-            }
-           
- 
-
-        }
-
-
-    } while (key != 8);
-    system("cls");
-    showLogo();
-    cout << blue << "\n\n\t\t\t Thank You for visiting our bank.\n\t\t\t\t\t" << reset;
-
-    return 0;
+    std::cout << "\n\n\t\t\t [ 6 ] Delete Record" << std::endl;
+    std::cout << "\t\t\t [ 7 ] View All Record" << std::endl;
+    std::cout << "\t\t\t [ 8 ] Exit" << std::endl;
+    std::cout << purple << "\t\t\t ______________________________________________________" << reset << std::endl;
+    std::cout << "\n\n\t\t\t Enter choice: ";
 }
